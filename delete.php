@@ -1,4 +1,12 @@
 <?php
+// Vérifier que l'utilisateur est connécté avec la présence
+// D'un "username" en SESSION
+session_start();
+if(!isset($_SESSION["username"])){
+    header("Location: index.php");
+    exit();
+}
+
 //Vérifier si l'ID est présent dans l'url
 if (empty($_GET["id"])) {
     header("Location: index.php?delete=idMissing");
