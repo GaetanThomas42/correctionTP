@@ -24,7 +24,7 @@ function selectCarByID(PDO $pdo, int $id): array|false
 {
     $requete = $pdo->prepare("SELECT * FROM car WHERE id = :id;");
     $requete->execute([
-        ":id" => $_GET["id"]
+        ":id" => $id
     ]);
     return $requete->fetch();
 
