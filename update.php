@@ -1,5 +1,11 @@
 <?php
-
+// Vérifier que l'utilisateur est connécté avec la présence
+// D'un "username" en SESSION
+session_start();
+if(!isset($_SESSION["username"])){
+    header("Location: index.php");
+    exit();
+}
 
 if(empty($_GET["id"])){
     header("Location: index.php");
@@ -15,14 +21,10 @@ $requete2->execute([
     ":id" => $_GET["id"]
 ]);
 $car = $requete2->fetch();
-
 if ($car == false) {
     header("Location: index.php?Select=IdNotFound");
     exit();
 }
-
-
-
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if (empty($_POST["model"])) {

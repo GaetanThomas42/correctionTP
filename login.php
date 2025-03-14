@@ -26,10 +26,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         ]);
         $user = $requete->fetch();
 
-        //Vérification si User trouvée 
+        //Vérification si User trouvée avec le Username
         if($user != false){
             //Sinon vérificaiton mot de passe Formulaire et Hash BDD
-            if(password_verify($_POST["password"], $user["password"])){
+            if(password_verify($_POST["password"], $user["password"])){ 
+                // Je connecte l'utilisateur
                 session_start();
                 $_SESSION["username"] = $user["username"];
                 header('Location: admin.php');
