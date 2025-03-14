@@ -1,12 +1,12 @@
 <?php
-$title = "Bienvenue dans le Garage";
-require_once("header.php");
 require_once("functions.php");
-
 require_once("connectDB.php");
 $pdo = connectDB();
 $cars = selectAllCars($pdo);
 
+
+$title = "Bienvenue dans le Garage";
+require_once("header.php");
 ?>
 <h1>Listes des Voitures</h1>
 <div class="d-flex flex-wrap">

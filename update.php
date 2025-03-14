@@ -1,94 +1,71 @@
 <?php
+require_once("connectDB.php");
+require_once("functions.php");
+
 // Vérifier que l'utilisateur est connécté avec la présence
 // D'un "username" en SESSION
-session_start();
-if(!isset($_SESSION["username"])){
-    header("Location: index.php");
-    exit();
-}
+verifySession();
+//Vérifier si l'ID est présent dans l'url
+verifyURLID($_GET["id"]);
 
-if(empty($_GET["id"])){
-    header("Location: index.php");
-    exit();
-    
-}
-$errors = [];
-
-require_once("connectDB.php");
 $pdo = connectDB();
-$requete2 = $pdo->prepare("SELECT * FROM car WHERE id = :id;");
-$requete2->execute([
-    ":id" => $_GET["id"]
-]);
-$car = $requete2->fetch();
-if ($car == false) {
-    header("Location: index.php?Select=IdNotFound");
-    exit();
+$car = selectCarByID($pdo, $_GET["id"]); // Un seul connect DB par page
+
+//Vérifier si la voiture avec l'ID existe en BDD
+verifyCarExist($car);
+
+
+
+$errors = [];
+// Si le formulaire est validé
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    // Vérifier les champs du formulaire
+    $errors = validateCarForm($errors,$_POST);
+    // Si le formulaire n'a pas renvoyé d'erreurs
+    if (empty($errors)) {
+        // Mettre à jour la voiture et rediriger
+        updateCarByID($pdo, $_POST["brand"], $_POST["model"], $_POST["horsePower"], $_POST["image"], $car["id"]);
+        header("Location: index.php");
+        exit();
+
+    }
+
 }
-if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-    if (empty($_POST["model"])) {
-        $errors["model"] = "le modele de voiture est manquant";
-    }
-    if (empty($_POST["brand"])) {
-        $errors["brand"] = "la marque de la voiture est manquante";
-    }
-    if (empty($_POST["horsePower"])) {
-        $errors["horsePower"] = "la puissance du vehicule est manquante";
-    }
-    if (empty($_POST["image"])) {
-        $errors["image"] = "l'image de la voiture est manquante";
-    }
-
-    if(empty($errors)){
-
-        $requete = $pdo->prepare("UPDATE car SET model = :model, brand = :brand, horsePower = :horsePower, image = :image WHERE id = :id;");
-
-        $requete->execute(
-            [
-                ":model" => $_POST["model"],
-                ":brand" => $_POST["brand"],
-                ":horsePower" => $_POST["horsePower"],
-                ":image" => $_POST["image"],
-                ":id" => $_GET["id"]
-            ]
-
-        );
-
-      header("Location: index.php");
-      exit();
-    } 
-}
 
 $title = "Modifier " . $car["model"];
 require_once("header.php");
+
 ?>
+
 <h1 class="text-primary">Modifier <?php echo $car["brand"] ?> <?php echo $car["model"] ?> </h1>
 
 <img src="images/<?php echo $car["image"] ?>" alt="<?php echo $car["model"] ?>">
 
-<form method="POST" action="update.php?id=<?php echo($car["id"]) ?>">
+
+<form method="POST" action="update.php?id=<?php echo ($car["id"]) ?>">
 
     <label for="model">Model</label>
-    <input id="model" type="text" name="model" value="<?php echo($car["model"])  ?>">
+    <input id="model" type="text" name="model" value="<?php echo ($car["model"])  ?>">
     <?php if (isset($errors['model'])): ?>
         <p class="text-danger"><?= $errors['model'] ?></p>
     <?php endif; ?>
 
     <label for="brand">Brand</label>
-    <input type="text" name="brand" value="<?php echo($car["brand"])  ?>" >
+    <input type="text" name="brand" value="<?php echo ($car["brand"])  ?>">
     <?php if (isset($errors['brand'])): ?>
         <p class="text-danger"><?= $errors['brand'] ?></p>
     <?php endif; ?>
 
     <label for="horsePower">HorsePower</label>
-    <input id="horsePower" type="number" name="horsePower" value="<?php echo($car["horsePower"])  ?>">
+    <input id="horsePower" type="number" name="horsePower" value="<?php echo ($car["horsePower"])  ?>">
     <?php if (isset($errors['horsePower'])): ?>
         <p class="text-danger"><?= $errors['horsePower'] ?></p>
     <?php endif; ?>
 
     <label for="image">Image</label>
-    <input id="image" type="text" name="image" >
+    <input id="image" type="text" name="image">
     <?php if (isset($errors['image'])): ?>
         <p class="text-danger"><?= $errors['image'] ?></p>
     <?php endif; ?>

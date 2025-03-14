@@ -1,19 +1,12 @@
 <?php
 require_once("functions.php");
 require_once("connectDB.php");
-
-// Vérifier que l'utilisateur est connécté avec la présence
-// D'un "username" en SESSION
-session_start();
-if(!isset($_SESSION["username"])){
-    header("Location: index.php");
-    exit();
-}
+// Vérifier que l'utilisateur est connécté 
+verifySession();
 
 
 $pdo = connectDB();
 $cars = selectAllCars($pdo);
-
 $title = "Administration Garage";
 require_once("header.php");
 ?>

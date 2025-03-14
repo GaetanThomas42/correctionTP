@@ -1,7 +1,7 @@
 <?php
-$title = "Connexion";
-require_once("header.php");
+
 require_once("connectDB.php");
+require_once("functions.php");
 
 $errors = [];
 
@@ -20,11 +20,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     
     if(count($errors) == 0){
         $pdo = connectDB();
-        $requete = $pdo->prepare('SELECT * FROM user WHERE username = :username');
-        $requete->execute([
-            ':username'=> $_POST["username"]
-        ]);
-        $user = $requete->fetch();
+        
+        $user = selectUserByUsername($pdo, $_POST["username"]);
 
         //Vérification si User trouvée avec le Username
         if($user != false){
@@ -34,8 +31,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                 session_start();
                 $_SESSION["username"] = $user["username"];
                 header('Location: admin.php');
-                // Le hash correspond, c'est ok
-                // J'ajoute la session et je redirige l'utilisateur
+                exit();
             }
         }
         //Afficher la même erreur si le problème vient du MDP ou Username
@@ -43,6 +39,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         $errors["login"] = 'Identifiants ou mot de passe incorrecte';
     }
 }
+
+
+$title = "Connexion";
+require_once("header.php");
 ?>
 <h1>Login</h1>
 <form method="POST" action="login.php">
