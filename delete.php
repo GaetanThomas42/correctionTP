@@ -11,8 +11,10 @@ $pdo = connectDB(); // Un seul connect DB par page
 
 $car = selectCarByID($pdo, $_GET["id"]);
 //Vérifier si la voiture avec l'ID existe en BDD
-verifyCarExist($car);
-
+if ($car == null) {
+    header("Location: index.php?Select=IdNotFound");
+    exit();
+}
 
 //Si le form est validé
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
